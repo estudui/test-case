@@ -27,6 +27,10 @@ Running loadtest
 npx loadtest -n 50 -c 10 http://localhost:3007/test-case
 ```
 
+## 📌 App architecture
+![loadtest](./public/images/app-architecture.png)
+
+
 ## 📝 Result (Local Test)
 - Max Request = 500, Concurrent = 100
 
