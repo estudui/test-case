@@ -27,6 +27,18 @@ Running loadtest
 npx loadtest -n 50 -c 10 http://localhost:3007/test-case
 ```
 
+---
+
+Running Database Migration
+```sh
+npm run db:migrate
+```
+-or-
+
+use the following sql export file [**test-case-db.sql**](./public/images/test-case-db.sql)
+
+
+
 ## 📌 App architecture
 ![loadtest](./public/images/app-architecture.png)
 
