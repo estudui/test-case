@@ -10,10 +10,14 @@ module.exports = {
 	async insertData() {
 		try {
 			const uuid = v4()
-			const dates = helpers.generateRandomStartEndDate('YYYY-MM-DD')
-			const dateList = helpers.generateDateRange(dates.start, dates.end, 'YYYY-MM-DD')
-			const nominal = faker.finance.amount({min: 10000000, max: 50000000, dec: 0})
-			let dayTotal = helpers.getDateDiff(dates.start, dates.end, 'YYYY-MM-DD')
+			const dates = helpers.generateRandomStartEndDate('YYYY-MM-DD') /* Dummy tanggal awal-akhir */
+			const dateList = helpers.generateDateRange(dates.start, dates.end, 'YYYY-MM-DD') /* Men-generate tanggal awal-akhir perbulan dari rentang tanggal yang di input */
+			const nominal = faker.finance.amount({min: 10000000, max: 50000000, dec: 0}) /* Dummy nominal */
+			let dayTotal = helpers.getDateDiff(dates.start, dates.end, 'YYYY-MM-DD') /* jumlah hari dalam rentang tanggal yang di input */
+
+			/*
+			* Membagi nominal dengan jumlah hari dalam rentang tanggal yang di input
+			* */
 			let nominalEachDay = nominal/dayTotal
 			nominalEachDay = nominalEachDay.toFixed(2)
 
@@ -23,13 +27,22 @@ module.exports = {
 				tanggal_akhir: dates.end,
 				nominal: nominal
 			}
+			log.info("INSERT HEADER: " + JSON.stringify(headerData) + " WITH " + dateList.length + " DETIL DATA")
 
 			let totalTmp = 0
 			let detilData = []
 			dateList.map((value, index, row) => {
 				console.log("Map ", value)
+
+				/*
+				* Menjumlahkan nominal sesuai jumlah hari dalam setiap iterasi
+				* */
 				let diffVal = helpers.getDateDiff(value[0], value[1], 'YYYY-MM-DD')
 				let eachNominal = nominalEachDay * diffVal
+
+				/*
+				* Mencari index terakhir, untuk menyesuaikan sisa nominal
+				* */
 				if (index + 1 === row.length) {
 					eachNominal = nominal - totalTmp
 				}
@@ -45,6 +58,7 @@ module.exports = {
 				totalTmp += eachNominal
 			})
 
+			/* Insert DB */
 			const result = sequelize.sequelize.transaction(async t => {
 				const headerInsert = await Header.create(headerData, {transaction: t})
 				await Detil.bulkCreate(detilData, {transaction: t})

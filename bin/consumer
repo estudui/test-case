@@ -21,11 +21,14 @@ async function init() {
 				`${group}: [${topic}]: PART:${partition}:`,
 				message.value.toString()
 			)
-			log.info(`${group}: [${topic}]: PART:${partition}:` + message.value.toString())
-			await indexService.insertData().then()
+			log.info(`${group}: [${topic}]: PART:${partition}: INSERT_DB_PROCESS: ` + message.value.toString())
+			await indexService.insertData()
+				.then(value => {
+					log.info("DATA INSERTED...")
+				})
 				.catch(e => {
 					console.log("err ", e)
-					log.error(`${group}: [${topic}]: PART:${partition}:` + e)
+					log.error(`${group}: [${topic}]: PART:${partition}: INSERT_DB_PROCESS:ERROR: ` + e)
 				})
 		}
 	})

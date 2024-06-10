@@ -16,10 +16,6 @@ module.exports = router
 async function testIndex(req, res, next) {
 	log.info("====== PROCESS BEGIN =======")
 	try {
-		// await indexService.insertData().then()
-		// 	.catch(e => {
-		// 		console.log("err ", e)
-		// 	})
 
 		/* Produce to Kafka */
 		const producer = kafka.producer()
@@ -27,6 +23,7 @@ async function testIndex(req, res, next) {
 		await producer.connect()
 		log.info("Producer Connected..")
 
+		log.info("Send Data to Kafka")
 		await producer.send({
 			topic: "nominal-test",
 			messages: [
