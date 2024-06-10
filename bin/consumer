@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+require('module-alias/register');
+const { kafka } = require('@config/kafka')
+const log = require('@config/winston')
+const group = process.argv[2]
+const indexService = require('../services/index/index-service')
+
+async function init() {
+	const consumer = kafka.consumer({ groupId: group})
+	await consumer.connect()
+
+	await consumer.subscribe({ topics: ["nominal-test"], fromBeginning: true})
+
+	await consumer.run({
+		eachMessage: async ({ topic, partition, message, heartbeat,pause }) => {
+			console.log(
+				`${group}: [${topic}]: PART:${partition}:`,
+				message.value.toString()
+			)
+			log.info(`${group}: [${topic}]: PART:${partition}:` + message.value.toString())
+			await indexService.insertData().then()
+				.catch(e => {
+					console.log("err ", e)
+					log.error(`${group}: [${topic}]: PART:${partition}:` + e)
+				})
+		}
+	})
+}
+
+init().then(value => {
+	console.log("consumer init...")
+})
